@@ -19,30 +19,8 @@ The primary goal is to enhance the model's ability to solve specific tasks by re
 
 The system operates using two main types of Ray actors that communicate with each other. This separation allows for specialized optimizations—vLLM for generation and DeepSpeed for training.
 
-```mermaid
-graph TD
-    subgraph Main Orchestration Loop
-        A[1. Sample Batch from GSM8K] --> B{VLLM Engine Actor};
-        B --> C["2. Generate N Rollouts<br>(Completions and Logprobs)"];
-        C --> D["3. Calculate Rewards and Advantages<br>(Compare to ground truth)"];
-        D --> E{Policy Model Actor};
-    end
-
-    subgraph "Policy Model Actor (Training)"
-        E --> F["4. Train on Experience<br>(GRPO Update Step)"];
-    end
-    
-    subgraph "Weight Synchronization"
-       F --> G[5. Broadcast Updated Weights];
-       G --> B;
-    end
-
-    style B fill:#228B22,stroke:#333,stroke-width:2px,color:#fff
-    style E fill:#4682B4,stroke:#333,stroke-width:2px,color:#fff
-```
-
 1.  **Data Sampling**: The main loop pulls a batch of prompts from the GSM8K dataset.
-2.  **Rollout Generation**: The prompts are sent to the `VLLMActor`. This actor, powered by vLLM, generates multiple (`N_ROLLOUTS`) possible completions for each prompt.
+2.  **Rollout Generation**: The prompts are sent to the `VLLMActor`. This actor, powered by vLLM, generates multiple (`N_ROLLOUTS`) completions for each prompt.
 3.  **Reward Calculation**: The main script evaluates the generated completions. For GSM8K, a simple reward function is used: a reward of **1.0** is given if the extracted numerical answer is correct, and **0.0** otherwise. Advantages are calculated by normalizing rewards (subtracting the mean).
 4.  **Policy Update**: The experience (prompts, completions, old log-probabilities, and advantages) is passed to the `PolicyModelActor`. This actor uses DeepSpeed to perform several epochs of GRPO updates on the experience batch.
 5.  **Weight Synchronization**: Periodically, the updated weights from the `PolicyModelActor` are broadcast back to the `VLLMActor` to ensure the inference engine is using the latest policy.
