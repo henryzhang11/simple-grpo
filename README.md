@@ -23,13 +23,13 @@ The system operates using two main types of Ray actors that communicate with eac
 graph TD
     subgraph Main Orchestration Loop
         A[1. Sample Batch from GSM8K] --> B{VLLM Engine Actor};
-        B --> C[2. Generate N Rollouts<br/>(Completions & Logprobs)];
-        C --> D[3. Calculate Rewards & Advantages<br/>(Compare to ground truth)];
+        B --> C["2. Generate N Rollouts<br>(Completions and Logprobs)"];
+        C --> D["3. Calculate Rewards and Advantages<br>(Compare to ground truth)"];
         D --> E{Policy Model Actor};
     end
 
     subgraph "Policy Model Actor (Training)"
-        E --> F[4. Train on Experience<br/>(GRPO Update Step)];
+        E --> F["4. Train on Experience<br>(GRPO Update Step)"];
     end
     
     subgraph "Weight Synchronization"
