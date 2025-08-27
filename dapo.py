@@ -40,7 +40,7 @@ UPDATE_VLLM_EVERY_N_STEPS = 1
 GRADIENT_CHECKPOINTING = False
 
 # ======================================================================================
-#  Utilities & Worker Extension (from vllm_worker_wrap.py)
+#  Utilities & Worker Extension
 # ======================================================================================
 
 def stateless_init_process_group(master_address, master_port, rank, world_size, device):
@@ -61,7 +61,7 @@ class WorkerWrap:
         del weight_tensor
 
 # ======================================================================================
-#  vLLM Engine Actor (from vllm_engine.py)
+#  vLLM Engine Actor
 # ======================================================================================
 
 @ray.remote
@@ -121,7 +121,7 @@ def create_vllm_engines(num_engines: int, tensor_parallel_size: int, pretrain: s
     return vllm_engines
 
 # ======================================================================================
-#  PPO Training Actor (from ppo_actor.py)
+#  PPO Training Actor
 # ======================================================================================
 
 @ray.remote
