@@ -4,7 +4,7 @@ This repository contains a Python script for fine-tuning a Large Language Model 
 
 The primary goal is to enhance the model's ability to solve specific tasks by rewarding correct completions, as demonstrated here with the **GSM8K mathematical reasoning dataset**.
 
-## 🚀 Features
+## Features
 
   * **GRPO-like Policy Optimization**: Implements a core group relative policy optimization loop to stably train the LLM from rewards.
   * **High-Throughput Generation**: Uses **vLLM** as a detached, high-performance inference engine to generate experience rollouts quickly.
@@ -15,7 +15,7 @@ The primary goal is to enhance the model's ability to solve specific tasks by re
 
 -----
 
-## 🏗️ Architecture
+## Architecture
 
 The system operates using two main types of Ray actors that communicate with each other. This separation allows for specialized optimizations—vLLM for generation and DeepSpeed for training.
 
@@ -24,3 +24,24 @@ The system operates using two main types of Ray actors that communicate with eac
 3.  **Reward Calculation**: The main script evaluates the generated completions. For GSM8K, a simple reward function is used: a reward of **1.0** is given if the extracted numerical answer is correct, and **0.0** otherwise. Advantages are calculated by normalizing rewards (subtracting the mean).
 4.  **Policy Update**: The experience (prompts, completions, old log-probabilities, and advantages) is passed to the `PolicyModelActor`. This actor uses DeepSpeed to perform several epochs of GRPO updates on the experience batch.
 5.  **Weight Synchronization**: After each step (tunable), the updated weights from the `PolicyModelActor` are broadcast back to the `VLLMActor` to ensure the inference engine is using the latest policy.
+
+## Run the Script
+
+Run the following commands to setup the environment and try the script yourself.
+
+```bash
+# create and activate virtual environment
+python3 -m venv rlenv && source rlenv/bin/activate
+# accelerate "wget"
+sudo apt-get update && sudo apt-get install -y aria2 && wget() { aria2c -x16 -s16 "$@"; }
+# download pytorch compiled against CUDA 12.4 (or change to cu121 at the end if you have CUDA 12.1)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+# download flash attention that matches your pytorch
+pip install flash-attn --no-build-isolation --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+# download other needed packages
+pip install transformers datasets "ray[default]" vllm deepspeed --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+# put in your HuggingFace access token to download model and dataset after running the following command
+huggingface-cli login
+# run the script
+python dapo.py
+```
