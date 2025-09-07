@@ -36,10 +36,10 @@ python3 -m venv rlenv && source rlenv/bin/activate
 sudo apt-get update && sudo apt-get install -y aria2 && wget() { aria2c -x16 -s16 "$@"; }
 # download pytorch compiled against CUDA 12.4 (or change to cu121 at the end if you have CUDA 12.1)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-# download flash attention that matches your pytorch
-pip install flash-attn --no-build-isolation --index-url https://pypi.tuna.tsinghua.edu.cn/simple
-# download other needed packages
-pip install transformers datasets "ray[default]" vllm deepspeed --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+# download flash attention that matches your pytorch (add "--index-url full_url" to change to the index url specified by "full_url" if the official url doesn't work fast enough)
+pip install flash-attn --no-build-isolation
+# download other needed packages (add "--index-url" flag if necessary)
+pip install transformers datasets "ray[default]" vllm deepspeed 
 # put in your HuggingFace access token to download model and dataset after running the following command
 huggingface-cli login
 # run the script
